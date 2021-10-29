@@ -31,3 +31,24 @@ cc_library(
     deps = ["@icu//:headers"],
     alwayslink = 1,
 )
+
+cc_library(
+    name = "icu_fwp_data",
+    srcs = ["fwp_data.c"],
+    deps = ["@icu//:headers"],
+    alwayslink = 1,
+)
+
+filegroup(
+    name = "conversion_files",
+    srcs = glob(["fwp_data.c.gz-*"]),
+)
+
+# Data files are compressed and split to work around git performance degradation
+# around large files.
+genrule(
+    name = "merge_conversion_data",
+    srcs = [":conversion_files"],
+    outs = ["fwp_data.c"],
+    cmd = "cat $(locations :conversion_files) | gunzip > $@",
+)

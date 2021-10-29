@@ -82,13 +82,22 @@ class DartsCloneTrieWrapper {
   // exists such an edge), moves 'cursor' to the new node and returns true.
   // Otherwise, does nothing (i.e., 'cursor' is not changed) and returns false.
   bool TryTraverseOneStep(TraversalCursor& cursor, char ch) const {
+    std::cout << " tos " << ch << std::endl;
+    std::cout << " tos " << cursor.node_id << std::endl;
+    std::cout << " tos " << cursor.unit << std::endl;
     const uint32_t next_node_id = cursor.node_id ^ offset(cursor.unit) ^ ch;
+    std::cout << " tos 1 " << next_node_id << std::endl;
     const uint32_t next_node_unit = trie_array_[next_node_id];
+    std::cout << " tos 2 " << next_node_unit << std::endl;
     if (label(next_node_unit) != ch) {
+      std::cout << " tos 3 " << std::endl;
       return false;
     }
+    std::cout << " tos 4 " << std::endl;
     cursor.node_id = next_node_id;
+    std::cout << " tos 5 " << std::endl;
     cursor.unit = next_node_unit;
+    std::cout << " tos 6 " << std::endl;
     return true;
   }
 

@@ -240,7 +240,7 @@ tf_cc_library(
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/strings",
-        "//third_party/icu/data:icu_normalization_data",
+        "//third_party/icu/data:icu_fwp_data",
         "@icu//:nfkc",
         # lite/kernels/shim:status_macros tensorflow dep,
     ],
@@ -383,7 +383,7 @@ tf_cc_library(
     ],
     deps = [
         ":edit_changes_cc_proto",
-        "//third_party/icu/data:icu_normalization_data",
+        "//third_party/icu/data:icu_fwp_data",
         "@com_google_absl//absl/strings",
         "@icu//:nfkc",
         "@icu//:nfkc_cf",

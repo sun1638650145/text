@@ -171,7 +171,6 @@ class FastWordpieceOpOriginalTest(test_util.TensorFlowTestCase,
 
   @parameterized.parameters([
       # Basic case
-      # TODO(b/204148042)
       # dict(
       #     tokens=[[_Utf8(u"купиха")]],
       #     expected_subwords=[[[
@@ -196,12 +195,12 @@ class FastWordpieceOpOriginalTest(test_util.TensorFlowTestCase,
           vocab=_ENGLISH_VOCAB,
       ),
       # Basic case w/ unknown token
-      # dict(
-      #     tokens=[[b"don't", b"tread", b"cantfindme", b"treadcantfindme"]],
-      #     expected_subwords=[[[b"don", b"##'", b"##t"], [b"tread"],
-      #                         [b"[UNK]"], [b"[UNK]"]]],
-      #     vocab=_ENGLISH_VOCAB,
-      # ),
+      dict(
+          tokens=[[b"don't", b"tread", b"cantfindme", b"treadcantfindme"]],
+          expected_subwords=[[[b"don", b"##'", b"##t"], [b"tread"], [b"[UNK]"],
+                              [b"[UNK]"]]],
+          vocab=_ENGLISH_VOCAB,
+      ),
       # Basic case w/ int id lookup
       dict(
           tokens=[[b"don't", b"tread", b"cantfindme", b"treadcantfindme"]],
@@ -452,17 +451,16 @@ class FastWordpieceOpOriginalTest(test_util.TensorFlowTestCase,
                                b"##it?"]]],
           vocab=_ENGLISH_VOCAB,
       ),
-      # TODO(b/204148042)
-      # dict(
-      #     tokens=ragged_factory_ops.constant_value(
-      #         [[[b"don't"], [b"treadness"], [b"whatchamacallit?"]]],
-      #         ragged_rank=1),
-      #     expected_subwords=[
-      #         [[[b"don", b"##'", b"##t"]], [[b"tread", b"##ness"]],
-      #          [[b"what", b"##cha", b"##ma", b"##call", b"##it?"]]]
-      #     ],
-      #     vocab=_ENGLISH_VOCAB,
-      # ),
+      dict(
+          tokens=ragged_factory_ops.constant_value(
+              [[[b"don't"], [b"treadness"], [b"whatchamacallit?"]]],
+              ragged_rank=1),
+          expected_subwords=[
+              [[[b"don", b"##'", b"##t"]], [[b"tread", b"##ness"]],
+               [[b"what", b"##cha", b"##ma", b"##call", b"##it?"]]]
+          ],
+          vocab=_ENGLISH_VOCAB,
+      ),
       # Specifying max_chars_per_token.
       dict(
           tokens=[[b"don't", b"treadness"]],
@@ -564,8 +562,8 @@ class FastWordpieceOpAdditionalTest(test_base.DatasetTestBase,
     dataset = dataset_ops.Dataset.from_tensor_slices(text_inputs)
     self.assertDatasetProduces(dataset.map(Preprocess), expected_outputs)
 
-  def DISABLED_testTokenizerBuiltInsideTfFunctionFromModel(self, text_inputs,
-                                                           expected_outputs):
+  def DISABLED_testTokenizerBuiltInsideTfFunctionFromModel(
+      self, text_inputs, expected_outputs):
 
     @def_function.function
     def Preprocess(text_input):
@@ -599,8 +597,8 @@ class FastWordpieceOpAdditionalTest(test_base.DatasetTestBase,
     dataset = dataset_ops.Dataset.from_tensor_slices(text_inputs)
     self.assertDatasetProduces(dataset.map(Preprocess), expected_outputs)
 
-  def DISABLED_testTokenizerBuiltOutsideTfFunctionFromModel(self, text_inputs,
-                                                            expected_outputs):
+  def DISABLED_testTokenizerBuiltOutsideTfFunctionFromModel(
+      self, text_inputs, expected_outputs):
     model_buffer = _LoadTestModelBuffer()
     tokenizer = FastWordpieceTokenizer(model_buffer=model_buffer)
 
@@ -703,8 +701,7 @@ class FastWordpieceInKerasModelTest(test_util.TensorFlowTestCase,
                                     parameterized.TestCase):
   """Tests fast WordPiece when used in a Keras model."""
 
-  # TODO(b/204148042): Determine why test is broken
-  def DISABLED_testTfliteWordpieceTokenizer(self, end_to_end, text_inputs):
+  def DISABLED_testTfLiteWordpieceTokenizer(self, end_to_end, text_inputs):
     """Checks TFLite conversion and inference."""
 
     class TokenizerModel(tf.keras.Model):
@@ -758,8 +755,7 @@ class FastWordpieceInKerasModelTest(test_util.TensorFlowTestCase,
     # Do TFLite inference.
     op = pywrap_tflite_registrar.AddFastWordpieceTokenize
     interp = interpreter.InterpreterWithCustomOps(
-        model_content=tflite_model,
-        custom_op_registerers=[op])
+        model_content=tflite_model, custom_op_registerers=[op])
     interp.allocate_tensors()
     input_details = interp.get_input_details()
     interp.set_tensor(input_details[0]["index"], input_data)
@@ -783,8 +779,7 @@ class FastWordpieceInKerasModelTest(test_util.TensorFlowTestCase,
     # Do TFLite detokenization.
     op = pywrap_tflite_registrar.AddFastWordpieceDetokenize
     interp = interpreter.InterpreterWithCustomOps(
-        model_content=tflite_model,
-        custom_op_registerers=[op])
+        model_content=tflite_model, custom_op_registerers=[op])
     interp.allocate_tensors()
     detokenize = interp.get_signature_runner("serving_default")
     tflite_detokenization_result = detokenize(

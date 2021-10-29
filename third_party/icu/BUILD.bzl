@@ -87,7 +87,8 @@ cc_library(
     defines = ["U_STATIC_IMPLEMENTATION"],
     linkopts = ["advapi32.lib"],
     deps = [
-        "@org_tensorflow_text//third_party/icu/data:icu_normalization_data",
+        "@org_tensorflow_text//third_party/icu/data:icu_fwp_data",
+        # "@org_tensorflow_text//third_party/icu/data:icu_normalization_data",
     ],
 )
 

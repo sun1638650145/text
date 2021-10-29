@@ -295,33 +295,42 @@ absl::Status FastWordpieceBuilder::BuildModel(
     const std::vector<std::string>& vocab, int max_bytes_per_token,
     absl::string_view suffix_indicator, absl::string_view unk_token,
     bool end_to_end, bool support_detokenization) {
+  std::cout << " fwp33 1" << std::endl;
   unk_token_ = std::string(unk_token);
   suffix_indicator_ = std::string(suffix_indicator);
   max_bytes_per_token_ = max_bytes_per_token;
   end_to_end_ = end_to_end;
   support_detokenization_ = support_detokenization;
+  std::cout << " fwp33 2" << std::endl;
 
   vocab_.emplace(vocab);
   if (vocab_->Size() != vocab.size()) {
     return absl::FailedPreconditionError(
         "Tokens in the vocabulary must be unique.");
   }
+  std::cout << " fwp33 3" << std::endl;
 
   // Determine `unk_token_id_`.
   const absl::optional<int> unk_token_id = vocab_->LookupId(unk_token_);
   if (!unk_token_id.has_value()) {
     return absl::FailedPreconditionError("Cannot find unk_token in the vocab!");
   }
+  std::cout << " fwp33 4" << std::endl;
   unk_token_id_ = *unk_token_id;
+  std::cout << " fwp33 5" << std::endl;
 
   // Construct the trie and the failure structure.
   SH_ASSIGN_OR_RETURN(auto tokens_to_build_trie,
                       PrepareVocabTokensToBuildTrie());
+  std::cout << " fwp33 6" << std::endl;
   SH_RETURN_IF_ERROR(ConstructTrie(tokens_to_build_trie));
+  std::cout << " fwp33 7" << std::endl;
   SH_RETURN_IF_ERROR(BuildFailureStructure(tokens_to_build_trie));
+  std::cout << " fwp33 8" << std::endl;
 
   // Precompute the result when the input is the suffix indicator string itself.
   SH_RETURN_IF_ERROR(PrecomputeResultForSuffixIndicator());
+  std::cout << " fwp33 9" << std::endl;
 
   return absl::OkStatus();
 }
@@ -511,14 +520,21 @@ absl::Status FastWordpieceBuilder::ConstructTrie(
 absl::Status FastWordpieceBuilder::BuildOutgoingEdgeLabelsAlongVocabToken(
     const TrieVocabToken& vocab_token,
     std::vector<absl::flat_hash_set<char>>& node_outgoing_edge_labels) {
+  std::cout << " fwp 66 1" << std::endl;
   const absl::string_view token = vocab_token.Token();
+  std::cout << " fwp 66 2" << std::endl;
   trie_utils::DartsCloneTrieWrapper::TraversalCursor cur_node;
   int char_pos = 0;
   trie_->SetTraversalCursor(cur_node, trie_->kRootNodeId);
+  std::cout << " fwp 66 3" << std::endl;
   while (char_pos < token.size()) {
+  std::cout << " fwp 66 4" << std::endl;
     const char edge_label = token[char_pos];
+    std::cout << " fwp 66 5" << std::endl;
     node_outgoing_edge_labels[cur_node.node_id].insert(edge_label);
+    std::cout << " fwp 66 6" << std::endl;
     if (!trie_->TryTraverseOneStep(cur_node, edge_label)) {
+      std::cout << " fwp 66 7" << std::endl;
       // Should never happen, since we built trie using all of `vocab_token`.
       return absl::FailedPreconditionError(absl::StrCat(
           "Error in traversing to child following edge ",
@@ -526,45 +542,60 @@ absl::Status FastWordpieceBuilder::BuildOutgoingEdgeLabelsAlongVocabToken(
           token.substr(0, char_pos), " at parent id ", cur_node.node_id,
           ". The token is ", token, ". The char position is ", char_pos, "."));
     }
+    std::cout << " fwp 66 8" << std::endl;
     ++char_pos;
   }
+  std::cout << " fwp 66 9" << std::endl;
   // Record whether the current node represents a punctuation char in the map.
   node_id_is_punc_map_[cur_node.node_id] =
       !vocab_token.IsSuffixToken() && vocab_token.ContainsPunctuation() &&
       vocab_token.TokenUnicodeLengthWithoutSuffixIndicator() == 1;
+  std::cout << " fwp 66 10" << std::endl;
   return absl::OkStatus();
 }
 
 absl::StatusOr<std::vector<absl::flat_hash_set<char>>>
 FastWordpieceBuilder::BuildOutgoingEdgeLabelsForTrie(
     const std::vector<TrieVocabToken>& tokens_to_build_trie) {
+  std::cout << " fwp 55 1" << std::endl;
   std::vector<absl::flat_hash_set<char>> node_outgoing_edge_labels(
       trie_array_.size());
+  std::cout << " fwp 55 2" << std::endl;
   const std::string dummy_token_for_trie_punct_failure_link_node =
       std::string(1, kInvalidControlChar);
+  std::cout << " fwp 55 3" << std::endl;
   for (const TrieVocabToken& vocab_token : tokens_to_build_trie) {
+    std::cout << " fwp 55 4" << std::endl;
     if (vocab_token.Token() == dummy_token_for_trie_punct_failure_link_node)
       continue;
+    std::cout << " fwp 55 5" << std::endl;
     SH_RETURN_IF_ERROR(BuildOutgoingEdgeLabelsAlongVocabToken(
         vocab_token, node_outgoing_edge_labels));
+    std::cout << " fwp 55 6" << std::endl;
   }
+  std::cout << " fwp 55 7" << std::endl;
   return node_outgoing_edge_labels;
 }
 
 // Computes failure links and failure pops using BFS traversal.
 absl::Status FastWordpieceBuilder::BuildFailureStructure(
     const std::vector<TrieVocabToken>& tokens_to_build_trie) {
+  std::cout << " fwp 44 1" << std::endl;
   // Build the set of outgoing edge labels for each trie node (node_id ->
   // set<char>). This is needed by BFS because darts-clone does not provide an
   // API to enumerate the outgoing links for a node.
   SH_ASSIGN_OR_RETURN(
       std::vector<absl::flat_hash_set<char>> node_outgoing_edge_labels,
       BuildOutgoingEdgeLabelsForTrie(tokens_to_build_trie));
+  std::cout << " fwp 44 2" << std::endl;
 
   failure_struct_array_.resize(trie_array_.size());
+  std::cout << " fwp 44 3" << std::endl;
   // Initialize the BFS queue.
   std::queue<uint32_t> bfs_queue({trie_->kRootNodeId});
+  std::cout << " fwp 44 4" << std::endl;
   if (trie_suffix_root_ != trie_->kRootNodeId) {
+  std::cout << " fwp 44 5" << std::endl;
     // When `suffix_indicator_` is empty, `trie_suffix_root_` will collapse
     // with root. In this case, we don't visit it twice.
     //
@@ -572,6 +603,7 @@ absl::Status FastWordpieceBuilder::BuildFailureStructure(
     // See PrepareVocabTokensToBuildTrie().
     bfs_queue.push(trie_suffix_root_);
   }
+  std::cout << " fwp 44 6" << std::endl;
 
   // The BFS loop.
   while (!bfs_queue.empty()) {
@@ -717,6 +749,7 @@ absl::Status FastWordpieceBuilder::BuildFailureStructure(
       bfs_queue.push(child_node.node_id);
     }
   }
+  std::cout << " fwp 44 7" << std::endl;
 
   if (end_to_end_ && !suffix_indicator_.empty()) {
     // Rewire trie links along suffix_indicator_.
@@ -775,6 +808,7 @@ absl::Status FastWordpieceBuilder::BuildFailureStructure(
       cur_pos = next_pos;
     }
   }
+  std::cout << " fwp 44 8" << std::endl;
   return absl::OkStatus();
 }
 

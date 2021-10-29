@@ -219,10 +219,34 @@ py_tf_text_library(
     ],
 )
 
+# py_test(
+#     name = "fast_wordpiece_tokenizer_test",
+#     size = "small",
+#     srcs = ["python/ops/fast_wordpiece_tokenizer_test.py"],
+#     data = [
+#         "//tensorflow_text/core/kernels:fast_wordpiece_tokenizer_testdata",
+#     ],
+#     python_version = "PY3",
+#     srcs_version = "PY3",
+#     deps = [
+#         ":fast_wordpiece_tokenizer",
+#         "//third_party/py/absl/testing:parameterized",
+#         # tensorflow package dep,
+#         # python:array_ops tensorflow dep,
+#         # python:client_testlib tensorflow dep,
+#         # python:dtypes tensorflow dep,
+#         # python:framework_test_lib tensorflow dep,
+#         # python/compat tensorflow dep,
+#         # python/data/kernel_tests:test_base tensorflow dep,
+#         # python/ops/ragged:ragged_factory_ops tensorflow dep,
+#         "//tensorflow_text/core/pybinds:pywrap_tflite_registrar",
+#     ],
+# )
+
 py_test(
-    name = "fast_wordpiece_tokenizer_test",
+    name = "fast_wordpiece_tokenizer2_test",
     size = "small",
-    srcs = ["python/ops/fast_wordpiece_tokenizer_test.py"],
+    srcs = ["python/ops/fast_wordpiece_tokenizer2_test.py"],
     data = [
         "//tensorflow_text/core/kernels:fast_wordpiece_tokenizer_testdata",
     ],
