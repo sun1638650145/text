@@ -93,8 +93,7 @@ class RaggedTensorToTensorOpModel : public SingleOpModel {
     BuildInterpreter(shapes, /*num_threads=*/-1,
                      /*allow_fp32_relax_to_fp16=*/false,
                      /*apply_delegate=*/true,
-                     /*allocate_and_delegate=*/allocate_and_delegate,
-                     /*use_simple_allocator=*/false);
+                     /*allocate_and_delegate=*/allocate_and_delegate);
   }
 
   std::vector<int> GetOutputShape() { return GetTensorShape(output_); }
