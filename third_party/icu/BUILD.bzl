@@ -50,7 +50,6 @@ cc_library(
         [
             "icu4c/source/common/*.c",
             "icu4c/source/common/*.cpp",
-            "icu4c/source/stubdata/*.cpp",
         ],
     ),
     hdrs = glob([
